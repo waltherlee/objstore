@@ -224,7 +224,7 @@ func (c *Container) Name() string {
 }
 
 func (c *Container) SupportedIterOptions() []objstore.IterOptionType {
-	return []objstore.IterOptionType{objstore.Recursive}
+	return []objstore.IterOptionType{objstore.Recursive, objstore.StartAfter}
 }
 
 // Iter calls f for each entry in the given directory. The argument to f is the full
@@ -234,11 +234,13 @@ func (c *Container) Iter(ctx context.Context, dir string, f func(string) error, 
 		dir = strings.TrimSuffix(dir, string(DirDelim)) + string(DirDelim)
 	}
 
+	params := objstore.ApplyIterOptions(options...)
 	listOptions := &swift.ObjectsOpts{
 		Prefix:    dir,
 		Delimiter: DirDelim,
+		Marker:    params.StartAfter,
 	}
-	if objstore.ApplyIterOptions(options...).Recursive {
+	if params.Recursive {
 		listOptions.Delimiter = rune(0)
 	}
 

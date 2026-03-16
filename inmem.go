@@ -99,6 +99,9 @@ func (b *InMemBucket) Iter(_ context.Context, dir string, f func(string) error, 
 	})
 
 	for _, k := range keys {
+		if params.StartAfter != "" && k <= params.StartAfter {
+			continue
+		}
 		if err := f(k); err != nil {
 			return err
 		}
@@ -107,7 +110,7 @@ func (b *InMemBucket) Iter(_ context.Context, dir string, f func(string) error, 
 }
 
 func (i *InMemBucket) SupportedIterOptions() []IterOptionType {
-	return []IterOptionType{Recursive}
+	return []IterOptionType{Recursive, StartAfter}
 }
 
 func (b *InMemBucket) IterWithAttributes(ctx context.Context, dir string, f func(attrs IterObjectAttributes) error, options ...IterOption) error {
